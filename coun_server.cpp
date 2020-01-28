@@ -14,11 +14,13 @@ void error(char *message) {
     exit(1);
 }
 
-void pus(int cli_sock, char oper) {
+void pus(int cli_sock, char oper, int a[]) {
     int sum = a[0];
     if (oper == '+') {
-        for (int i = 1; i < si; ++i)
+        for (int i = 1; i < si; ++i) {
+            printf("%d\n", a[i]);
             sum += a[i];
+        }
     }
     if (oper == '-')
         for (int i = 1; i < si; ++i)
@@ -27,10 +29,10 @@ void pus(int cli_sock, char oper) {
         for (int i = 1; i < si; ++i)
             sum *= a[i];
     if (si == 0) sum = 0;
-    write(cli_sock, &sum, sizeof(int));
+    write(cli_sock, (char*)&sum, sizeof(sum));
     return;
 }
-
+char ch[mx];
 int main(int argc, char *argv[]) {
     int ser_sock, cli_sock;
     sockaddr_in ser_addr, cli_addr;
@@ -57,17 +59,17 @@ int main(int argc, char *argv[]) {
     cli_sock = accept(ser_sock, (sockaddr*)&cli_addr, &cli_adr_si);
     if (cli_sock == -1)
         error("accept() error");
-    si = 0;
-    if (read(cli_sock, &q, sizeof(q)) == -1)
+    if (read(cli_sock, &si, 1) == -1)
         error("read() error");
-    while (q--) {
-        if (read(cli_sock, a+si, sizeof(int)) == -1)
-            error("read error");
-        si++;
+    int revlen = 0;
+    printf("%d\n", si);
+    while (si*4+1 > revlen) {
+        int ss;
+        ss = read(cli_sock, ch+revlen, mx);
+        revlen += ss;
     }
-    if (read(cli_sock, &oper, sizeof(oper)) == -1)
-            error("read error");
-    pus(cli_sock, oper);
+
+    pus(cli_sock, ch[revlen-1], (int *)ch);
     close(cli_sock);
     close(ser_sock);
     return 0;

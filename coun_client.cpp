@@ -4,18 +4,18 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
+#define mx 1024
+#define bit 4
 void error(char *message) {
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);
 }
-
+char ch[mx];
 int main(int argc, char* argv[]) {
     int cli_sock;
     sockaddr_in ser_addr;
-    int a, q;
-    char oper;
+    int q, top;
     if (argc != 3) {
         printf("Usage :%s <IP> <port>\n", argv[0]);
         exit(1);
@@ -33,16 +33,18 @@ int main(int argc, char* argv[]) {
         error("connect error");
     printf("请输入数字个数: ");
     scanf("%d", &q);
-    if (write(cli_sock, &q, sizeof(q)) == -1)
-        error("write() error");
+    ch[0] = (char)q;
+    int id = 0;
+    top = 1;
     while (q--) {
-        scanf("%d", &a);
-        if (write(cli_sock, &a, sizeof(a)) == -1)
-            error("write() error");
+        printf("请输入你第%d 的数字 :", id+1);
+        scanf("%d", (int*)(ch+id*bit+1));
+        id++;
     }
+    int a;
     printf("你的运算方法: ");
-    scanf(" %c", &oper);
-    if (write(cli_sock, &oper, sizeof(oper)) == -1)
+    scanf(" %c", ch+id*bit+1);
+    if (write(cli_sock, ch, id*bit+2) == -1)
         error("write() error");
     if (read(cli_sock, &a, sizeof(a)) == -1)
         error("read error");
