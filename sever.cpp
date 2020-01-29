@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     if (bind(ser_sock, (struct sockaddr*) &ser_addr, sizeof(ser_addr)) == -1)
         error_handling("bind() error");
-
+    printf("%#x\n", ser_addr.sin_addr.s_addr);
     if (listen(ser_sock, 5) == -1)
         error_handling("listen() error");
 
