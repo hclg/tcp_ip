@@ -2,11 +2,31 @@
 
 #### 1.  套接字可选项和I/O缓冲大小
 
-
+我们进行套接字编程时往往只关注数据通信，而忽略了套接字具有的不同特性。但是，理解这些特性并根据实际需要进行更改也很重要.
 
 ##### 1.1 套接字的多种可选项
 
 可选项是分层的。
+
+| 协议层      | 选项名            | 读取 | 设置 |
+| ----------- | ----------------- | ---- | ---- |
+| SOL_SOCKET  | SO_SNDBUF         | O    | O    |
+| SOL_SOCKET  | SO_RCVBUF         | O    | O    |
+| SOL_SOCKET  | SO_REUSEADDR      | O    | O    |
+| SOL_SOCKET  | SO_KEEPALIVE      | O    | O    |
+| SOL_SOCKET  | SO_BROADCAST      | O    | O    |
+| SOL_SOCKET  | SO_DONTROUTE      | O    | O    |
+| SOL_SOCKET  | SO_OOBINLINE      | O    | O    |
+| SOL_SOCKET  | SO_ERROR          | O    | X    |
+| SOL_SOCKET  | SO_TYPE           | O    | X    |
+| IPPROTO_IP  | IP_TOS            | O    | O    |
+| IPPROTO_IP  | IP_TTL            | O    | O    |
+| IPPROTO_IP  | IP_MULTICAST_TTL  | O    | O    |
+| IPPROTO_IP  | IP_MULTICAST_LOOP | O    | O    |
+| IPPROTO_IP  | IP_MULTICAST_IF   | O    | O    |
+| IPPROTO_TCP | TCP_KEEPALIVE     | O    | O    |
+| IPPROTO_TCP | TCP_NODELAY       | O    | O    |
+| IPPROTO_TCP | TCP_MAXSEG        | O    | O    |
 
 大致常用的协议层分三类
 
@@ -64,4 +84,25 @@ int setsockopt(int sock, int level, int optname, const void *optval, socklen_t o
 
 * [git_buf.c](https://github.com/hclg/tcp_ip/blob/master/%E5%A5%97%E6%8E%A5%E5%AD%97%E7%9A%84%E5%8F%AF%E9%80%89%E9%A1%B9/get_buf.c)
 
-![image-20200201230647194](/home/h1/.config/Typora/typora-user-images/image-20200201230647194.png)
+![image-20200202085024839](/home/h1/.config/Typora/typora-user-images/image-20200202085024839.png)
+
+更改
+
+* [set_buf.c]()
+
+编译运行：
+
+```bash
+gcc set_buf.c -o set_buf
+./set_buf
+```
+
+运行结果：
+
+```bash
+INPUT : 6144
+OUTPUT : 6144
+```
+
+运行结果跟预想不一样很正常，因为缓冲大小设置需要很谨慎，不会完全按我们的要求去改，会自动保证一点空间。
+

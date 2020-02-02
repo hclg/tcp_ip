@@ -17,7 +17,7 @@ int main() {
     if (state)
         error("getsockopt() error");
     len = sizeof(rcv_buf);
-    state = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (void*)&rcv_buf, &len);
+    state = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (void*)&rcv_buf, &len);
     if (state)
         error("getsockopt() error");
     printf("INPUT buffer: %d\n", rcv_buf);
