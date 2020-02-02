@@ -84,7 +84,21 @@ int setsockopt(int sock, int level, int optname, const void *optval, socklen_t o
 
 * [git_buf.c](https://github.com/hclg/tcp_ip/blob/master/%E5%A5%97%E6%8E%A5%E5%AD%97%E7%9A%84%E5%8F%AF%E9%80%89%E9%A1%B9/get_buf.c)
 
-![image-20200202085024839](/home/h1/.config/Typora/typora-user-images/image-20200202085024839.png)
+编译运行：
+
+```bash
+gcc get_buf.c -o get_buf
+./get_buf
+```
+
+运行结果：
+
+```bash
+INPUT buffer: 131072
+OUTPUT buffer: 16384
+```
+
+这是我的输入输出缓冲大小
 
 更改
 
