@@ -198,6 +198,6 @@ gcc reuseadr_eserver.c -o reuseadr_eserver
 int opt_val = 1  
 setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void*) &opt_val, sizeof(opt_val)); // 设置
 socklen_t  opt_len = sizeof(opt_val);
-getsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void*) &opt_val, &opt_val ); //查看
+getsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void*) &opt_val, &opt_len ); //查看
 ```
 

@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
     int state, str_len;
     char message[mx];
     ser_sock = socket(PF_INET, SOCK_STREAM, 0);
+
     if (ser_sock == -1)
         error_handling("socket() error");
     int option;
