@@ -155,7 +155,7 @@ OUTPUT : 6144
 
 ![img](https://camo.githubusercontent.com/e8f38f736e60411f504881a1677ef19e72994d0f/68747470733a2f2f692e6c6f6c692e6e65742f323031392f30312f31392f356334326462313832636164652e706e67)
 
-##### 2.3 更改可选项SO_REUSEADDR
+##### 2.2 更改可选项SO_REUSEADDR
 
 ​	来判断关闭后同个端口立即运行新的套接字。
 
@@ -177,4 +177,27 @@ gcc reuseadr_eserver.c -o reuseadr_eserver
 ```
 
 现象：客户端在服务端关闭以后还能用一下才会关闭，服务端关闭后还可以在客户端关闭之前重连。
+
+#### 3. TCP_NODELAY
+
+​	设置Nagle算法使用状态。
+
+##### 3.1 什么是Nagle算法
+
+​	Nagle 算法就是只有在接收到前一个数据的回复ACK后才会发送下一个数据，使用与发送短消息时可以提高网络传输效率。
+
+因为它能在等待的时候将跟多的数据传入缓冲区下次发送更大的数据，从而减少数据包的使用，每个数据包都会有头信息，减少使用也就能减少网络流量。
+
+**这只适用于小文件传输，而大文件传输的传入输出缓冲不会花费太多时间，也会在装满数据缓冲包时进行传输，所以不会增加数据包的使用，因此，如果不用Nagle算法能够大大提高效率。**
+
+##### 3.2 禁用Nagle算法
+
+只需将TCP_NODELAY 改为1 (真)即可
+
+```c++
+int opt_val = 1  
+setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void*) &opt_val, sizeof(opt_val)); // 设置
+socklen_t  opt_len = sizeof(opt_val);
+getsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void*) &opt_val, &opt_val ); //查看
+```
 
