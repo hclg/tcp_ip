@@ -70,7 +70,24 @@ int setsockopt(int sock, int level, int optname, const void *optval, socklen_t o
 * 注意事项: 运行有时候会发生错误，多运行几次即可。
 * 套接字类型只能在创建决定，后期不能更改。
 
-![image-20200201215833438](/home/h1/.config/Typora/typora-user-images/image-20200201215833438.png)
+编译运行：
+
+```bash
+gcc sock_type.c -o sock_type
+./sock_type
+```
+
+运行结果：
+
+```bash
+SOCK_STREAM: 1
+ SOCK_DGRAM: 2
+PF_INET: 2
+TCP_sock type : 1 
+ optlen: 4
+UDP_sock type : 2 
+ optlen: 4
+```
 
 ##### 1.3 I/O缓冲大小
 
