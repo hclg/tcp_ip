@@ -88,6 +88,8 @@ Child proc: [13 27]
 
 ​	通俗一点就是子进程已经执行完调用return了父进程还没结束就不会销毁子进程。
 
+子进程终止会将放回值或exit的参数传给父进程。
+
 验证如下：
 
 * [zombie.c](zombie.c)
@@ -127,5 +129,64 @@ h1        15499  0.0  0.1  34076  5304 pts/1    Ss   14:53   0:00 bash
 h1        15514  0.0  0.0  48856  3592 pts/1    R+   14:53   0:00 ps au
 ```
 
-其中 STAT栏目下的Z+表示僵尸进
+其中 STAT栏目下的Z+表示僵尸进程，比ID少1的是父进程。
+
+提示：
+
+```bash
+./zombie &  ## 可以后台运行
+```
+
+##### 2.3 销毁僵尸进程
+
+​	销毁僵尸子进程的方法有两种。
+
+##### 2.3.1 利用wait函数
+
+```c++
+#include <sys/wait.h>
+pid_t wait(int *status);
+	成功返回被终止的子进程ID，失败返回-1.
+```
+
+调用此函数的个数和子进程个数相同，如果子进程已经正常终止，返回值或参数会保存在该函数的参数中。
+
+* WIFEXITED(status) 子进程正常返回真
+* WEXITSTATUS(status) 返回子进程的返回值
+
+示例：
+
+* [wait.c](wait.c)
+
+编译运行：
+
+```bash
+gcc wait.c -o wait
+./wait &
+ps au
+```
+
+运行结果：
+
+```bash
+child process one ID: 25410
+child process two1 ID: 25411
+child sen one: 3
+child process two2 ID: 25937
+child sen two: 7
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       1001  0.0  0.0  23284  1924 tty1     Ss+  13:36   0:00 /sbin/agetty -
+root       1039  4.0  3.1 602460 124376 tty7    Ssl+ 13:36   5:58 /usr/lib/xorg/
+h1         2477  0.0  0.1  34076  5236 pts/0    Ss   13:44   0:00 bash
+h1         2488  0.0  0.3 187996 13388 pts/0    S    13:44   0:01 fish
+h1        15499  0.0  0.1  34076  5304 pts/1    Ss   14:53   0:00 bash
+h1        17579  0.0  0.2 187200  8048 pts/1    S+   15:00   0:00 fish
+h1        25409  0.0  0.0  10824   880 pts/0    S    16:03   0:00 ./wait
+h1        25424  0.0  0.0  48856  3700 pts/0    R+   16:03   0:00 ps au
+Job 1, './wait &' has ended
+```
+
+这时候就没有僵尸进程了同时也可以看到25409父进程正在运行。
+
+* 注意：如果进程中没有子进程了，调用wait函数程序就会堵塞直到有子进程为止。
 
