@@ -53,7 +53,7 @@ pid_t fork(void);
 
 通过以下代码验证：
 
-* 
+* [fork.c](# fork.c)
 
 编译运行：
 
@@ -98,11 +98,34 @@ Child proc: [13 27]
 gcc zombie.c -o zombie
 ./zombie
 ps au //30秒内新窗口
+ps au //30秒后
 ```
 
 运行结果：
 
 ```bash
-
+child process ID: 15496
+Hi, I am a child processEND child process
+END parent process //30秒后出现
+### 新窗口30内
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       1001  0.0  0.0  23284  1924 tty1     Ss+  13:36   0:00 /sbin/agetty -
+root       1039  3.6  2.5 550280 103008 tty7    Ssl+ 13:36   2:48 /usr/lib/xorg/
+h1         2477  0.0  0.1  34076  5236 pts/0    Ss   13:44   0:00 bash
+h1         2488  0.0  0.3 187996 13372 pts/0    S    13:44   0:00 fish
+h1        15495  0.0  0.0  10824   892 pts/0    S+   14:53   0:00 ./zombie
+h1        15496  0.0  0.0      0     0 pts/0    Z+   14:53   0:00 [zombie] <defu
+h1        15499  0.2  0.1  34076  5280 pts/1    Ss   14:53   0:00 bash
+h1        15510  0.0  0.0  48856  3664 pts/1    R+   14:53   0:00 ps au
+### 30秒后
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       1001  0.0  0.0  23284  1924 tty1     Ss+  13:36   0:00 /sbin/agetty -
+root       1039  3.6  2.5 550280 103012 tty7    Ssl+ 13:36   2:50 /usr/lib/xorg/
+h1         2477  0.0  0.1  34076  5236 pts/0    Ss   13:44   0:00 bash
+h1         2488  0.0  0.3 187996 13372 pts/0    S+   13:44   0:00 fish
+h1        15499  0.0  0.1  34076  5304 pts/1    Ss   14:53   0:00 bash
+h1        15514  0.0  0.0  48856  3592 pts/1    R+   14:53   0:00 ps au
 ```
+
+其中 STAT栏目下的Z+表示僵尸进
 
