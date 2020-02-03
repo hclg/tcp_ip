@@ -53,7 +53,7 @@ pid_t fork(void);
 
 通过以下代码验证：
 
-* [fork.c](# fork.c)
+* [fork.c](fork.c)
 
 编译运行：
 
@@ -90,7 +90,7 @@ Child proc: [13 27]
 
 验证如下：
 
-* 
+* [zombie.c](zombie.c)
 
 编译运行：
 
