@@ -296,3 +296,136 @@ CTRL C pressed
 ##### 3.2 利用sigaction 函数进行信号处理
 
 ​	它比signal更稳定，signal在UNIX系列的不同操作系统中可能会存在区别，而sigaction完全相同。
+
+```c++
+#include <signal.h>
+
+int sigaction(int signo, const struct sigaction * act, struct sigaction * oldact);
+ 	成功返回0， 失败返回-1.
+        signo： 与signal 函数相同传递信号信息
+        act：对应第一个参数的信号处理函数信息
+        oldact：通过参数获取之前注册的信号处理函数指针，若不需要则传0
+        声明并初始化sigaction 结构体变量以调用上述函数
+        定义如下：
+        struct sigaction {
+            void (*sa_handler)(int); //信号处理函数的指针
+            sigset_t sa_mask; // 相关选项初始化0即可
+            int sa_flags; // 特性初始化0即可
+        }
+```
+
+示例：
+
+* [sigaction](sigaction)
+
+编译运行：
+
+```bash
+gcc sigaction.c -o sigaction
+./sigaction
+```
+
+运行结果：
+
+```bash
+wait ..
+TIME OUT~~
+wait ..
+TIME OUT~~
+wait ..
+TIME OUT~~
+```
+
+##### 3.3 利用信号处理去消除僵尸进程
+
+示例：
+
+* [remove_zombie.c](remove_zombie.c)
+
+编译运行：
+
+```bash
+gcc remove_zombie.c -o remove_zombie
+./remove_zombie
+```
+
+运行结果：
+
+```bash
+child process id: 66747
+Hi, I am child process~
+Hi, I am child process~
+child process id: 66748
+wait ...
+wait ...
+Remove process id: 66747
+child sen: 7
+wait ...
+Remove process id: 66748
+child sen: 24
+wait ...
+wait ...
+```
+
+观察发现：实际运行不到25s这是因为在10秒的时候两个子进程都被唤醒了，将第2次等待的一点时间和第三次进入阻塞的进程给唤醒了。
+
+#### 4. 基于多任务的并发服务器
+
+利用以上函数编写出多任务的并发回声服务器
+
+示例：
+
+* [echo_mpserv.c](echo_mpserv.c)
+* [echo_client.c](echo_client.c)
+
+服务端编译运行：
+
+```bash
+gcc echo_mpserv.c  -o echo_mpserv
+./echo_mpserv 9190
+```
+
+客户端1号运行
+
+```bash
+gcc echo_client.c -o echo_client
+./echo_client 127.0.0.1 9190
+123
+abc
+q
+```
+
+客户端1号输出结果
+
+```bash
+server OUT: 123
+server OUT: q
+```
+
+客户端2号同时运行
+
+```bash
+./echo_client 127.0.0.1 9190
+中文测试
+你好
+q
+```
+
+客户端2号输出结果
+
+```bash
+server OUT: 中文测试
+server OUT: 你好
+```
+
+服务端输出结果：
+
+```bash
+new client connected ...
+new client connected ...
+client disconnect ....
+client disconnect ....
+remove process id: 73481remove process id: 73842
+remove process id: 73481remove process id: 73843
+```
+
