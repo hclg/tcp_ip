@@ -188,5 +188,111 @@ Job 1, './wait &' has ended
 
 这时候就没有僵尸进程了同时也可以看到25409父进程正在运行。
 
-* 注意：如果进程中没有子进程了，调用wait函数程序就会堵塞直到有子进程为止。
+* 注意：如果进程中没有已经终止的子进程了，调用wait函数程序就会堵塞直到有子进程为止。
 
+##### 2.3.2 利用waitpid函数
+
+​	wait函数会发生堵塞，可以用waitpid函数。
+
+```c++
+#include <sys/wait.h>
+pid_t waitpid(pid_t, int *status, int options);
+	成功时返回终止的子进程ID(或0)， 失败返回-1.
+        pid 等待终止的目标子进程ID，若传-1， 则和wait相同等待任意子进程终止。
+        status 与wait函数中的一样
+        options 传递头文件中的常量WNOHANG， 即使没有终止的子进程也不会进入阻塞状态, 而是返回0然后退出函数。
+```
+
+示例：
+
+* [waitpid.c](waitpid.c)
+
+编译运行：
+
+```bash
+gcc waitpid.c -o waitpid
+./waitpid
+```
+
+运行结果：
+
+```bash
+sleep(2)
+sleep(2)
+sleep(2)
+sleep(2)
+sleep(2)
+child send 24
+```
+
+刚好运行5次表示没阻塞。
+
+#### 3. 信号处理
+
+​	为了想要让子进程终止后能告诉父进程，所设置的信号处理机制。
+
+​	注释：c与c++语言并不支持进程和线程所以才会区分linux和Windows的函数不同，而java是语言层面上支持的。
+
+##### 3.1 信号与signal函数
+
+* 进程：操作系统，如果我之前创建的子进程终止了，就帮我调用xxx函数。
+* 操作系统：好的，我会在那个时候调用的，你先把你的函数要执行的语句编好。
+
+以上对话相当于“注册信号”的过程，就是在子进程终止时调用特定的函数。
+
+```c++
+#include <signal.h>
+void (*signal(int signo, void (*func)(int)))(int);	
+	为了在产生信号时调用，返回之前注册的函数指针。
+        signo 是为特殊情况的信息
+        			对应常数
+        			SIGALRM: 已通过调用alarm函数注册的时间
+                    SIGINT: 输入ctrl +c
+                    SIGCHLD: 子进程终止
+        func 为在这个特殊情况下将调用的函数的地址返回指针
+```
+
+* 函数指针就是指向函数地址的指针
+* 例如 int (*p)(int); 这个定义的就是返回值为 int型的只有一个int参数的函数类型的指针
+* int abs(int x); p = abs; p可以指向它。
+* 也可以通过它调用 c = (*p)(a); 等同与 c = abs(a)；
+
+```c++
+#include <unistd.h>
+unsigned int alarm(unsigned int seconds);
+		返回0 或者以秒为单位的距SIGALRM信号发生所剩时间
+         seconds 表示相应时间后将产生SIGALRM信号，若向该函数传递0，则对之前的SIGALRM的预约取消，若未定义处理函数，则通过signal函数终止进程。
+```
+
+示例：
+
+* [signal.c](signal.c)
+
+编译运行：
+
+```bash
+gcc signal.c -o signal
+./signal
+Ctrl+c ///最后出现child 3的时候按的
+```
+
+运行结果：
+
+```bash
+wait...
+time out!
+wait...
+time out!
+wait...
+time out!
+wait!!!
+child ----
+child 3
+CTRL C pressed
+```
+
+* 由上可以得知发生信号是时将会唤醒，因sleep函数而进入阻塞状态的进程，所以以上运行不到10秒就结束了。
+
+##### 3.2 利用sigaction 函数进行信号处理
+
+​	它比signal更稳定，signal在UNIX系列的不同操作系统中可能会存在区别，而sigaction完全相同。
