@@ -53,5 +53,28 @@ gcc pipe2.c -o pipe2
 运行结果:
 
 ```bash
-WHO ARE YOU!!
+parent process output:WHO ARE YOU!!
+child process output:IS YOUR FATHER
 ```
+
+* 但要注意的是管道中的数据谁都可以拿，子进程的输出的数据如果父进程没拿到子进程自家拿了也是可以，但这样的话父进程就会一直等待管道的数据。
+* 所以要执行双向还是两个管道比较好。
+
+示例：
+
+* [pipe3.c](pipe3.c)
+
+编译运行：
+
+```bash
+gcc pipe3.c -o pipe3
+./pipe3
+```
+
+运行结果:
+
+```bash
+parent process output:WHO ARE YOU!!
+child process output:IS YOUR FATHER
+```
+
