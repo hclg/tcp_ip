@@ -83,7 +83,7 @@ child process output:IS YOUR FATHER
 保存消息的多并发服务器
 
 * [echo_storeserv.c](echo_storeserv.c)
-* [echo_mpclient.c](../多进程服务端/echo_mpclient.c)
+* [echo_mpclient.c](https://github.com/hclg/tcp_ip/blob/master/%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF/echo_mpserv.c)
 
 保存文件为：
 
