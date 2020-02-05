@@ -78,3 +78,13 @@ parent process output:WHO ARE YOU!!
 child process output:IS YOUR FATHER
 ```
 
+最后示例：
+
+保存消息的多并发服务器
+
+* [echo_storeserv.c](echo_storeserv.c)
+* [echo_mpclient.c](../多进程服务端/echo_mpclient.c)
+
+保存文件为：
+
+* [record.txt](record.txt)
