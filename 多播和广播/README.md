@@ -50,7 +50,8 @@ setsockopt(recv_sock, IPPROTO_IP, IP_ADD_MEMVERSHIP, (void*) &join_adr, sizeof(j
         struct in_addr imr_multiaddr; ///写入加入组的IP
         struct in_addr imr_interface; ///写入加入该组的主机IP也可以写INADDR_ANY
     }
-
+组IP只能是D类地址
+    recvfrom中的后两个参数，如果不知道目标主机地址可以写NULL和0；
 ```
 
 示例：
@@ -59,5 +60,23 @@ setsockopt(recv_sock, IPPROTO_IP, IP_ADD_MEMVERSHIP, (void*) &join_adr, sizeof(j
 
 [news_receiver.c](news_receiver.c)
 
+#### 2. 广播
 
+​	广播分为两种：
+
+* 直接广播
+* 本地广播
+
+是于多播相同，也是由UDP完成的，相同一网络的所有主机传输的方法。
+
+上面两种区别主要在IP地址上。
+
+直接广播除了网络地址外其余地址设置为1.例如向网络地址192.12.34中的所有主机传输数据时，可以向192.12.34.255传输。
+
+反之，本地广播中使用的IP地址限定为255.255.255.255 例如，192.32.24网络中的主机向255.255.255.255传输数据时，数据将传递到192.32.24网络的所有主机
+
+示例：
+
+* [news_sender_brd.c](news_sender_brd.c)
+* [news_receiver_brd.c](news_receiver_brd.c)
 
