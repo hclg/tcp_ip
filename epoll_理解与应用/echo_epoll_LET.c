@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <sys/epoll.h>
 
 #define BUF_SIZE 100
@@ -14,6 +16,11 @@ void error(char *message) {
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);
+}
+
+void setmode(int fd) {
+    int flage = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flage|O_NONBLOCK);
 }
 
 int main(int argc, char *argv[]) {
@@ -38,6 +45,7 @@ int main(int argc, char *argv[]) {
     epfd = epoll_create(SIZE);
     ep_events = malloc(sizeof(struct epoll_event)*SIZE);
 
+    setmode(ser_sock);
     event.events = EPOLLIN;
     event.data.fd = ser_sock;
     epoll_ctl(epfd, EPOLL_CTL_ADD, ser_sock, &event);
@@ -50,20 +58,27 @@ int main(int argc, char *argv[]) {
             if (ep_events[i].data.fd == ser_sock) {
                 adr_sz = sizeof(cl_adr);
                 cli_sock = accept(ser_sock, (struct sockaddr*) &cl_adr, &adr_sz);
-                event.events = EPOLLIN;
+                event.events = EPOLLIN|EPOLLET;
                 event.data.fd = cli_sock;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, cli_sock, &event);
                 printf("new connected ......\n");
             }
             else {
-                str_len = read(ep_events[i].data.fd, buf, SIZE);
-                if (str_len == 0) {
-                    epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL);
-                    close(ep_events[i].data.fd);
-                    printf("disconnect %d\n", ep_events[i].data.fd);
-                }
-                else {
-                    write(ep_events[i].data.fd, buf, str_len);
+                while (1) {
+                    str_len = read(ep_events[i].data.fd, buf, SIZE);
+                    if (str_len == 0) {
+                        epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL);
+                        close(ep_events[i].data.fd);
+                        printf("disconnect %d\n", ep_events[i].data.fd);
+                        break;
+                    }
+                    else if (str_len < 0){
+                        if (errno == EAGAIN)
+                            break;
+                    }
+                    else {
+                        write(ep_events[i].data.fd, buf, str_len);
+                    }
                 }
             }
         }
