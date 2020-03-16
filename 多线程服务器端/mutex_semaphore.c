@@ -14,23 +14,24 @@ int num;
 
 int main()
 {
-    pthread_t pm_id[100], ps_id[2];
+    pthread_t pm_id[100];
+    //ps_id[2];
     pthread_mutex_init(&mu_t, NULL);
-    sem_init(&se_one, 0, 0);
-    sem_init(&se_tow, 0, 1);
+ //   sem_init(&se_one, 0, 0);
+ //   sem_init(&se_tow, 0, 1);
     int i;
     for (i = 0; i < 100; ++i) {
         pthread_create(&(pm_id[i]), NULL, mutex_plus, (void *)&i);
         su3+=i;
     }
     int k = 5;
-    pthread_create(&(ps_id[0]), NULL, sem_sub, (void *)&k);
-    pthread_create(&(ps_id[1]), NULL, sem_sub1, (void *)&k);
+ //   pthread_create(&(ps_id[0]), NULL, sem_sub, (void *)&k);
+ //   pthread_create(&(ps_id[1]), NULL, sem_sub1, (void *)&k);
     for (int i = 0; i < 100; ++i){
         pthread_join(pm_id[i], NULL);
     }
-    pthread_join(ps_id[0], NULL);
-    pthread_join(ps_id[1], NULL);
+ //   pthread_join(ps_id[0], NULL);
+  //  pthread_join(ps_id[1], NULL);
     pthread_mutex_destroy(&mu_t);
     sem_destroy(&se_one);
     sem_destroy(&se_tow);
@@ -45,6 +46,7 @@ void *mutex_plus(void *arg) {
         su1+=1;
     }
         pthread_mutex_unlock(&mu_t);
+    printf("%d\n", su1);
     return NULL;
 }
 
