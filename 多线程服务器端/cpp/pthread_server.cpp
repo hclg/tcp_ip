@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#define SIZE 100
+#define SIZE 120
 #define clien_si 520
 void send_msg(char *arg, int len);
 void *hand_cli(void *arg);
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     int cli_adr_sz;
     pthread_t p_id;
     
-    socket(PF_INET, SOCK_STREAM, 0);
+    sock = socket(PF_INET, SOCK_STREAM, 0);
 
     memset(&ser_adr, 0, sizeof(ser_adr));
     ser_adr.sin_family = AF_INET;
@@ -56,6 +56,7 @@ void *hand_cli(void *arg) {
     int str_len = 0, i;
     char msg[SIZE];
 
+    fprintf(stdout, "yes");
     while((str_len = read(cli_sock, msg, sizeof(msg))) != 0)
         send_msg(msg, str_len);
     pthread_mutex_lock(&mutex);
@@ -65,10 +66,12 @@ void *hand_cli(void *arg) {
     }
    --cli_cnt;
    pthread_mutex_unlock(&mutex);
+   printf("client sock stop: %d\n", cli_sock);
    close(cli_sock);
    return NULL;
 }
 void send_msg(char *msg, int len) {
+    printf("cli_cnt : %d\n", cli_cnt);
     pthread_mutex_lock(&mutex);
     for (int i = 0; i < cli_cnt; ++i) 
         write(cli[i], msg, len);

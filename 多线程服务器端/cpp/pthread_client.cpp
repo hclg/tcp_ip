@@ -30,7 +30,8 @@ int main(int argv, char *argc[])
     if (connect(sock, (struct sockaddr*)&ser_adr, sizeof(ser_adr)) == -1) 
         error("connect error");
     pthread_t send_id, recv_id;
-    sprintf(name, "[%s]", argc[3]);
+    sprintf(name, "[%s]:", argc[3]);
+    fputs(name, stdout);
     pthread_create(&send_id, NULL, send_msg, (void*)&sock);
     pthread_create(&recv_id, NULL, recv_msg, (void*)&sock);
 
@@ -42,23 +43,32 @@ int main(int argv, char *argc[])
 }
 
 void *send_msg(void *arg) {
-    int sock = *((int*) &arg);
-    char msg[SIZE];
+    int sock = *((int*)arg);
+    char msg[SIZE], ans[SIZE+NA_SI];
     while (1) {
-       fgets(msg, SIZE, stdin);
-        if (strcmp(msg, "Q") == 0|| strcmp(msg, "q") == 0)
+//        fputs("INPUT:", stdout);
+        fgets(msg, SIZE, stdin);
+        if (strcmp(msg, "Q\n") == 0 || strcmp(msg, "q\n") == 0) {
+            close(sock);
             break;
-        sprintf(msg, "%s %s", name, msg);
-        write(sock, msg, sizeof(msg));
+        }
+        sprintf(ans, "%s %s", name, msg);
+//        fputs(ans, stdout);
+        write(sock, ans, sizeof(ans));
     }
     return NULL;
 }
 void *recv_msg(void *arg) {
-    int sock = *((int *)&arg);
-    char msg[SIZE];
+    int sock = *((int *)arg);
+    char msg[SIZE+NA_SI];
     int str_len = 0;
+    fprintf(stdout, "%s\n", name);
     while ((str_len = read(sock, msg, NA_SI+SIZE-1)) != 0) {
+        printf("%d\n", str_len);
+        if (str_len == -1)
+            return (void *)-1;
         msg[str_len] = 0;
+//        fprintf(stdout, "%s\n", msg);
         fputs(msg, stdout);
     }
     return NULL;
