@@ -109,7 +109,7 @@ void send_msg(FILE *fp, char *ct, char *filename) {
     fputs(server, fp);
     fputs(cnt_len, fp);
     fputs(cnt_type, fp);
-    fputs(buf, fp);
+//    fputs(buf, fp);
     puts(cnt_type);
     while (fgets(buf, SIZE_BUF, file) != NULL) {
         fputs(buf, fp);
@@ -123,7 +123,8 @@ void send_msg(FILE *fp, char *ct, char *filename) {
 
 
 void error_send(FILE *fp) {
-    char status[] = "HTTP/1.1 400 Request\r\n";
+    puts("error _send");
+    char status[] = "HTTP/1.0 400 Request\r\n";
     char cnt_type[] = "Content-type:text/html\r\n\r\n";
     char content[] = "<html><head><title>NETWORK</title></head>"
         "<body><font size=+5><br>发生错误！查看请求文件名和请求方式！"
