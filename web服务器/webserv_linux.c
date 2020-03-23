@@ -93,7 +93,7 @@ void *request_cli(void *arg) {
 
 void send_msg(FILE *fp, char *ct, char *filename) {
     char buf[SIZE_BUF];
-    char prolocol[] = "HTTP/1.0 200 OK/r/n";
+    char prolocol[] = "HTTP/1.0 200 OK\r\n";
     char cnt_type[SI];
     FILE *file;
     puts(filename);
