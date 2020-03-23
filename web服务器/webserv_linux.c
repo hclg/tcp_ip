@@ -17,7 +17,7 @@ void send_msg(FILE *fp, char *ct, char *filename);
 char *cont_typ(char *filename);
 
 
-int main(int argv, char **argc)
+int main(int argv, char *argc[])
 {
     int ser_sock, cli_sock;
     pthread_t pid;
@@ -32,11 +32,13 @@ int main(int argv, char **argc)
 
     if (bind(ser_sock, (struct sockaddr*)&ser_adr, sizeof(ser_adr)) == -1)
         error_msg("bind error");
-    if (listen(ser_sock, 5) == -1)
+    if (listen(ser_sock, 20) == -1)
         error_msg("listen error");
 
     while (1) {
+        cli_adr_sz = sizeof(cli_adr);
         cli_sock = accept(ser_sock, (struct sockaddr*)&cli_adr, &cli_adr_sz);
+        puts("sss");
 
         pthread_create(&pid, NULL, request_cli, (void *)&cli_sock);
         pthread_detach(pid);
@@ -53,6 +55,7 @@ void error_msg(char *msg) {
 
 void *request_cli(void *arg) {
     int sock = *((int*)arg);
+    puts("request");
     char filename[SIZE_BUF];
     char ct[SI];
     char request_typ[SI];
@@ -61,24 +64,30 @@ void *request_cli(void *arg) {
     read_cli = fdopen(sock, "r");
     write_cli = fdopen(dup(sock), "w");
     fgets(buf, SIZE_BUF, read_cli);
+    puts(buf);
     if (strstr(buf, "HTTP/") == NULL) {
+        puts("HTTP");
         error_send(write_cli);
         fclose(write_cli);
         fclose(read_cli);
         return NULL;
     }
+    
     strcpy(request_typ, strtok(buf, " /"));
     strcpy(filename, strtok(NULL, " /"));
+    puts("help");
     strcpy(ct, cont_typ(filename));
+    puts(ct);
     if (strcmp(request_typ, "GET") != 0) {
+        puts("GET");
         error_send(write_cli);
         fclose(write_cli);
         fclose(read_cli);
         return NULL;
     }
-    send_msg(write_cli, ct, filename);
-    fflush(write_cli);
     fclose(read_cli);
+    send_msg(write_cli, ct, filename);
+//    fflush(write_cli);
     return NULL;
 }
 
@@ -87,18 +96,26 @@ void send_msg(FILE *fp, char *ct, char *filename) {
     char prolocol[] = "HTTP/1.0 200 OK/r/n";
     char cnt_type[SI];
     FILE *file;
+    puts(filename);
     file = fopen(filename, "r");
     if (file == NULL) { 
         error_send(fp);
         fclose(fp);
         return;
     }
+
     sprintf(cnt_type, "Content-type:%s\r\n\r\n", ct);
     fputs(prolocol, fp);
     fputs(server, fp);
     fputs(cnt_len, fp);
     fputs(cnt_type, fp);
     fputs(buf, fp);
+    puts(cnt_type);
+    while (fgets(buf, SIZE_BUF, file) != NULL) {
+        fputs(buf, fp);
+        puts(buf);
+        fflush(fp);
+    }
     fflush(fp);
     fclose(fp);
     return ;
@@ -106,7 +123,7 @@ void send_msg(FILE *fp, char *ct, char *filename) {
 
 
 void error_send(FILE *fp) {
-    char status[] = "HTTP/1.0 400 Request\r\n";
+    char status[] = "HTTP/1.1 400 Request\r\n";
     char cnt_type[] = "Content-type:text/html\r\n\r\n";
     char content[] = "<html><head><title>NETWORK</title></head>"
         "<body><font size=+5><br>发生错误！查看请求文件名和请求方式！"
@@ -122,11 +139,13 @@ void error_send(FILE *fp) {
 char * cont_typ(char *filename) {
     
     char ct[SI];
-    strtok(filename, ".");
-    strcpy(ct, strtok(filename, "."));
+    char file_name[SI];
+    strcpy(file_name, filename);
+ //   puts(file_name);
+    strtok(file_name, ".");
+    strcpy(ct, strtok(NULL, "."));
     if (!strcmp(ct, "html") || !strcmp(ct, "htm"))
-        strcpy(ct, "text/html");
+        return "text/html";
     else 
-        strcpy(ct, "text/plain");
-    return ct;
+        return "text/plain";
 }
