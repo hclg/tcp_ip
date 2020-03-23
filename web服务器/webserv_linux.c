@@ -5,10 +5,10 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <pthread.h>
-#define SIZE_BUF 1024
-#define SI 100
+#define SIZE_BUF 2048
+#define SI 200
 
-char cnt_len[] = "Content-length:2048\r\n";
+char cnt_len[] = "Content-length:4096\r\n";
 char server[] = "Server:Linux Web Server \r\n";
 void error_msg(char *msg);
 void *request_cli(void *arg);
